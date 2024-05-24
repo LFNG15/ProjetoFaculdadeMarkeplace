@@ -5,7 +5,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:12345678@localhost/Marketplace'
 db = SQLAlchemy(app)
 
-class Seller(db.Model):
+class Vendedor(db.Model):
     id_vendedor = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     cnpj = db.Column(db.String(14), unique=True, nullable=False)
