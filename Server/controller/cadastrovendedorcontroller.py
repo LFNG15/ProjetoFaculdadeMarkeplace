@@ -3,43 +3,43 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 app = Flask(__name__)
 
-sellers = []
+Vendedor = []
 
-@app.route('/sellers', methods=['POST'])
+@app.route('/Vendedor', methods=['POST'])
 @jwt_required()  
-def create_seller():
+def create_Vendedor():
     current_user_id = get_jwt_identity() 
-    new_seller_data = request.json
-    new_seller = Seller(
-        name=new_seller_data['name'],
+    new_vendedor_data = request.json
+    new_vendedor = Vendedor(
+        name=new_vendedor_data['name'],
         id=current_user_id,
-        cnpj=new_seller_data['cnpj']
+        cnpj=new_vendedor_data['cnpj']
     )
-    sellers.append(new_seller.to_dict())
-    return jsonify(new_seller.to_dict()), 201
+    vendedor.append(new_vendedor.to_dict())
+    return jsonify(new_vendedor.to_dict()), 201
 
-@app.route('/sellers', methods=['GET'])
-def get_sellers():
-    return jsonify(sellers)
+@app.route('/Vendedor', methods=['GET'])
+def get_Vendedors():
+    return jsonify(Vendedor)
 
-@app.route('/sellers/<int:seller_id>', methods=['GET'])
-def get_seller(seller_id):
-    seller = next((seller for seller in sellers if seller['id'] == seller_id), None)
-    if seller:
-        return jsonify(seller)
+@app.route('/Vendedor/<int:Vendedor_id>', methods=['GET'])
+def get_Vendedor(vendedor_id):
+    Vendedor = next((vendedor for vendedor in vendedor if vendedor['id'] == vendedor_id), None)
+    if Vendedor:
+        return jsonify(Vendedor)
     return jsonify({'message': 'Vendedor não encontrado'}), 404
 
-@app.route('/sellers/<int:seller_id>', methods=['PUT'])
-def update_seller(seller_id):
-    update_seller = request.json
-    for i, seller in enumerate(sellers):
-        if seller['id'] == seller_id:
-            sellers[i] = update_seller
-            return jsonify(update_seller)
+@app.route('/Vendedor/<int:Vendedor_id>', methods=['PUT'])
+def update_Vendedor(vendedor_id):
+    update_vendedor = request.json
+    for i, Vendedor in enumerate(Vendedor):
+        if Vendedor['id'] == vendedor_id:
+            Vendedor[i] = update_vendedor
+            return jsonify(update_vendedor)
     return jsonify({'message': 'Vendedor não encontrado'}), 404
 
-@app.route('/sellers/<int:seller_id>', methods=['DELETE'])
-def delete_seller(seller_id):
-    global sellers
-    sellers = [seller for seller in sellers if seller['id'] != seller_id]
+@app.route('/Vendedors/<int:Vendedor_id>', methods=['DELETE'])
+def delete_Vendedor(vendedor_id):
+    global vendedor
+    Vendedor = [vendedor for vendedor in vendedor if vendedor['id'] != vendedor_id]
     return jsonify({'message': 'Vendedor excluído com sucesso'}), 200
