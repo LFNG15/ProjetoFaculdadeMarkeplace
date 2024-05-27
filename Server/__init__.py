@@ -15,8 +15,10 @@ def create_app():
     with app.app_context():
         from controller.produto_controller import produto_bp
         from controller.vendedor_controller import vendedor_bp
+        from controller.auth_controller import auth_bp
 
         app.register_blueprint(produto_bp)
         app.register_blueprint(vendedor_bp)
+        app.register_blueprint(auth_bp)
 
         return app
