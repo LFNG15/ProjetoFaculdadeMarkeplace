@@ -12,3 +12,4 @@ db = SQLAlchemy(app)
 
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Substitua pela sua chave secreta
 jwt = JWTManager(app)
+
