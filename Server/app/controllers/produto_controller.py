@@ -1,5 +1,7 @@
+##CORRIGIR
+
 from flask import Blueprint, jsonify, request
-from app.models import db, Produto
+from app.models import Produto, db
 
 produto_bp = Blueprint('produto_pb',__name__)
 Produto = []

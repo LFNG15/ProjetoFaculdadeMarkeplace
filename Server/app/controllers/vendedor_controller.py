@@ -1,7 +1,6 @@
-from flask import Flask, Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Flask, request, jsonify, abort
+from app.models.vendedor import Vendedor
 from flask_sqlalchemy import SQLAlchemy
-from models.vendedor import Vendedor
 
 app = Flask(__name__)
 
@@ -11,55 +10,49 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-vendedor_bp = Blueprint('vendedor_bp',__name__)
+@app.route('/vendedores', methods=['POST'])
+def create_vendedor():
+    data = request.get_json()
+    if not data or not all(k in data for k in ('name', 'cnpj', 'fk_id_usuario')):
+        abort(400)
 
-Vendedor = []
-
-@vendedor_bp.route('/Vendedor', methods=['POST'])
-@jwt_required()  
-def create_Vendedor():
-    current_user_id = get_jwt_identity() 
-    new_vendedor_data = request.json
     new_vendedor = Vendedor(
-        name=new_vendedor_data['nome'],
-        id=current_user_id,
-        cnpj=new_vendedor_data['cnpj']
+        name=data['name'],
+        cnpj=data['cnpj'],
+        fk_id_usuario=data['fk_id_usuario']
     )
-    ##vendedor.append(new_vendedor.to_dict())
     db.session.add(new_vendedor)
     db.session.commit()
     return jsonify(new_vendedor.to_dict()), 201
 
-@vendedor_bp.route('/Vendedor', methods=['GET'])
-def get_Vendedors():
+@app.route('/vendedores', methods=['GET'])
+def get_vendedores():
     vendedores = Vendedor.query.all()
     return jsonify([vendedor.to_dict() for vendedor in vendedores])
 
-@vendedor_bp.route('/Vendedor/<int:Vendedor_id>', methods=['GET'])
-def get_Vendedor(vendedor_id):
-    ##Vendedor = next((vendedor for vendedor in vendedor if vendedor['id'] == vendedor_id), None)
-    vendedor = Vendedor.query.get(vendedor_id)
-    if Vendedor:
-        return jsonify(vendedor.to_dict())
-    return jsonify({'message': 'Vendedor não encontrado'}), 404
+@app.route('/vendedores/<int:id_vendedor>', methods=['GET'])
+def get_vendedor(id_vendedor):
+    vendedor = Vendedor.query.get_or_404(id_vendedor)
+    return jsonify(vendedor.to_dict())
 
-@vendedor_bp.route('/Vendedor/<int:Vendedor_id>', methods=['PUT'])
-def update_Vendedor(vendedor_id):
-    update_vendedor_data = request.json
-    vendedor = Vendedor.query.get(vendedor_id)
-    if vendedor:
-        vendedor.nome = update_vendedor_data.get('nome', vendedor.nome)
-        vendedor.cnpj = update_vendedor_data.get('cnpj', vendedor.cnpj)
-        db.session.commit()
-    return jsonify({'message': 'Vendedor não encontrado'}), 404
+@app.route('/vendedores/<int:id_vendedor>', methods=['PUT'])
+def update_vendedor(id_vendedor):
+    vendedor = Vendedor.query.get_or_404(id_vendedor)
+    data = request.get_json()
+    if not data:
+        abort(400)
 
-@vendedor_bp.route('/Vendedors/<int:Vendedor_id>', methods=['DELETE'])
-def delete_Vendedor(vendedor_id):
-    ##global vendedor
-    ##Vendedor = [vendedor for vendedor in vendedor if vendedor['id'] != vendedor_id]
-    vendedor = Vendedor.query.get(vendedor_id)
-    if vendedor:
-        db.session.delete(vendedor)
-        db.session.commit()
-        return jsonify({'message': 'Vendedor excluído com sucesso'}),200
-    return jsonify({'message': 'Vendedor não encontrado'}), 404
+    vendedor.name = data.get('name', vendedor.name)
+    vendedor.cnpj = data.get('cnpj', vendedor.cnpj)
+    vendedor.fk_id_usuario = data.get('fk_id_usuario', vendedor.fk_id_usuario)
+    vendedor.has_ativo = data.get('has_ativo', vendedor.has_ativo)
+
+    db.session.commit()
+    return jsonify(vendedor.to_dict())
+
+@app.route('/vendedores/<int:id_vendedor>', methods=['DELETE'])
+def delete_vendedor(id_vendedor):
+    vendedor = Vendedor.query.get_or_404(id_vendedor)
+    db.session.delete(vendedor)
+    db.session.commit()
+    return '', 204
